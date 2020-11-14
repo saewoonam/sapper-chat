@@ -11,36 +11,42 @@ const dev = NODE_ENV === 'development';
 const server = http.createServer();
 
 polka({ server }) // You can also use Express
-	.use(
-		compression({ threshold: 0 }),
-		sirv('static', { dev }),
-		sapper.middleware()
-	)
-	.listen(PORT, err => {
-		if (err) console.log('error', err);
-	});
+    .use(
+        compression({ threshold: 0 }),
+        sirv('static', { dev }),
+        sapper.middleware()
+    )
+    .listen(PORT, err => {
+        if (err) console.log('error', err);
+    });
 
 let numUsers = 0;
 
 io(server).on('connection', function(socket) {
-	++numUsers;
-	let message = 'Server: A new user has joined the chat';
-	socket.emit('user joined', { message, numUsers });
-	socket.broadcast.emit('user joined', { message, numUsers });
+    ++numUsers;
+    let message = 'Server: A new user has joined the chat';
+    socket.emit('user joined', { message, numUsers });
+    socket.broadcast.emit('user joined', { message, numUsers });
 
-	socket.on('message', function(msg) {
-		socket.broadcast.emit('message', msg);
-	})
+    socket.on('message', function(msg) {
+        socket.broadcast.emit('message', msg);
+    })
 
 
-	socket.on('disconnect', function() {
-		--numUsers;
-		socket.broadcast.emit('user left', numUsers);
-	})
+    socket.on('disconnect', function() {
+        --numUsers;
+        socket.broadcast.emit('user left', numUsers);
+    })
 
-	socket.on('user disconnect', function(name) {
-		socket.broadcast.emit('message', `Server: ${name} has left the chat.`)
-	})
+    socket.on('user disconnect', function(name) {
+        socket.broadcast.emit('message', `Server: ${name} has left the chat.`)
+    })
+    console.log(socket);
+    setInterval(function(){ 
+        // console.log("emit interval message");
+        if(numUsers>0) socket.emit('message', 'interval message '+socket.id);
+    }, 3000);
 });
+
 
 
