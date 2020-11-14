@@ -107,7 +107,11 @@
 <svelte:window on:unload={emitUserDisconnect}/>
 
 <script>
+  // This works for v2.3 of socket.io package
   import io from "socket.io-client";
+  // these don't work for v3.0
+  // import {io} from "socket.io/socket.io.js";
+  // import io from "socket.io/socket.io.js";
 	import { fade } from "svelte/transition";
 	
 	import Heading from "../components/Heading.svelte";
